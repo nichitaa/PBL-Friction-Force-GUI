@@ -730,6 +730,8 @@ delta_R = Label(frame4, text='| Δ\U0001D493 = 0.005', font="Times 17", bg=ufo, 
 delta_R.grid(row=0, column=1)
 delta_w = Label(frame4, text='| Δ\u03C9 = 0.05', font="Times 17", bg=ufo, fg=txt_color)
 delta_w.grid(row=0, column=2)
+delta_tau = Label(frame4, text='| Δ\u03C4 = 0.5', font="Times 17", bg=ufo, fg=txt_color)
+delta_tau.grid(row=0, column=3)
 
 delta_ff = Label(frame4, text='| ΔFᶠ = ___', font="Times 17", bg=ufo, fg=txt_color)
 delta_ff.grid(row=0, column=4)
