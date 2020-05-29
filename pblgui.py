@@ -8,6 +8,8 @@ from collections import defaultdict
 from tkinter.filedialog import *
 from tkinter.messagebox import *
 from tkinter import filedialog
+import gspread
+
 
 FrictionF_list = [] # pentru fortele de frecare
 coefs = [] # pentru coeficientii de frecare
@@ -305,6 +307,133 @@ normalF_list = [] # pentru forta normala
 last = [] # pentru ultimile valori introduse , ( tau0, w0 )
 
 
+def Import_data_Spreadsheets():
+    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM
+
+    masa['state'], viteza['state'], tau['state'] = DISABLED, DISABLED, DISABLED
+    viteza0['state'], tau0['state'] = DISABLED, DISABLED
+
+    gc = gspread.service_account(filename='creds.json')
+    sheet = gc.open_by_key('19FnHoinYGcMBgXQQi25YGXhC5ZSvAFwOs_WHKl_QdK8')
+    worksheet = sheet.sheet1
+
+    # lista de mase
+    masa_list = worksheet.col_values(1)
+    masa_list.pop(0)
+    masa_list = [float(masa_list[i]) for i in range(len(masa_list))]
+
+    # lista de viteze
+    w = worksheet.col_values(2)
+    w.pop(0)
+    w = [float(w[i]) for i in range(len(w))]
+
+    # lista de timput tau
+    tau_list = worksheet.col_values(3)
+    tau_list.pop(0)
+    tau_list = [float(tau_list[i]) for i in range(len(tau_list))]
+
+    # raza discului
+    r = worksheet.get('D2')
+    r = float(r[0][0])
+
+    # masa discului
+    mas_disc = worksheet.get('E2')
+    mas_disc = float(mas_disc[0][0])
+
+    # lisa cu toate valoarile
+    general = []
+    for i in range(9):
+        general.append([masa_list[i], w[i], tau_list[i]])
+    print('general - ', general)
+
+    # viteza w0 si tau 0
+    w0 = w[-1]
+    t0 = tau_list[-1]
+    tab[15, 2]['text'] = '\u03C90 = '.translate(SUB) + str(w0)
+    tab[15, 3]['text'] = '\u03C40 = '.translate(SUB) + str(t0)
+    tab[15, 4]['text'] = 0
+
+    # Momentul de rezistenta
+    MM = Momentul_fortei_disc(t0, Momentum_J(mas_disc, r), w0)
+    tab[15, 5]['text'] = '\U0001D440 = {:.3f}'.format(MM)  # M
+
+    ra['text'] = 'Raza = {:.2f}(m)'.format(r)
+    mass['text'] = 'Masa discului = {:.2f}(kg)'.format(mas_disc)
+    mass.config(width=20)
+    masa_discului.grid_forget()
+    eps_r.grid_forget()
+    eps_m.grid_forget()
+
+    ra.config(width=14)
+    raza.grid_forget()
+    print(FrictionF_list)
+
+    # completez tabelul
+    s = 6
+    for i in range(0, 9):
+        tab[s, 1]['text'] = '{:.2f}'.format(general[i][0])  # masa
+        tab[s, 2]['text'] = '{:.2f}'.format(general[i][1])  # w0
+        tab[s, 3]['text'] = '{:.2f}'.format(general[i][2])  # tau_0
+        tab[s, 4]['text'] = '{:.3f}'.format(Normal_force(general[i][0]))  # F(N)
+        s += 1
+        normalF_list.append(Normal_force(general[i][0]))
+
+    J = Momentum_J(mas_disc, r)
+    print(J)
+    print('tau_0', t0)
+    for i in range(9):
+        tau_current = general[i][2]
+        print('tau curent', tau_current)
+        Friction = Friction_force(J, w0, r, t0, tau_current)
+        FrictionF_list.append(Friction)
+
+    # forta de frecare coloana
+    j = 0
+    for i in range(6, 15):
+        tab[i, 5]['text'] = '{:.4f}'.format(FrictionF_list[j])
+        j += 1
+
+    # completez tabelul cu coeful de frecare
+    for i in range(9):
+        k = Coeficient(FrictionF_list[i], normalF_list[i])
+        coefs.append(k)
+    j = 0
+    for i in range(6, 15):
+        tab[i, 6]['text'] = '{:.4f}'.format(coefs[j])
+        j += 1
+    tab[15, 6]['text'] = '\U0001D458 = 0'
+    tab[15, 4]['text'] = '\U0001D441 = 0'  # N
+
+    # aranjam butoanele
+    add.grid_configure(row=2, column=3, padx=(5, 0), pady=1)
+    add.config(width=20)
+    clearf.grid_configure(row=3, column=3, padx=(5, 0), pady=1)
+    clearf.config(width=20)
+    restart.grid_configure(row=4, column=3, padx=(5, 0), pady=1)
+    restart.config(width=20)
+    eps_common.grid(row=2, column=4, padx=(5, 0), pady=1)
+
+    # plot the data
+    def Show_the_plot(normalF_list, FrictionF_list):
+        plt.plot(normalF_list, FrictionF_list, 'b')
+        plt.plot(normalF_list, FrictionF_list, 'ro')
+        plt.grid()
+        plt.xlabel('Forta N')
+        plt.ylabel('Forta Fᶠ')
+        plt.title('Graficul dependente Fᶠ = f(N)')
+        plt.show()
+
+    # Forces Lists / coefs
+    print('friction - ',FrictionF_list )
+    print('normal f - ',normalF_list )
+    print('coefs - ', coefs)
+
+    # afisam erorile
+    find_error(general, FrictionF_list, t0, J, r, mas_disc)
+    # afisam graficul
+    Show_the_plot(normalF_list, FrictionF_list)
+
+
 def Import_data():
     global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list
 
@@ -345,6 +474,7 @@ def Import_data():
             t = float(listed[2].rstrip())
             general.append([m, w, t])
 
+    print('general  -- ', general)
     # raza configs
     ra['text'] = 'Raza = {:.2f}(m)'.format(r)
     mass['text'] = 'Masa discului = {:.2f}(kg)'.format(mas_disc)
@@ -420,7 +550,25 @@ def Import_data():
     Show_the_plot(normalF_list, FrictionF_list)
 
 
-########################################################################
+def Export_to_Spreadsheet():
+    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM
+
+    gc = gspread.service_account(filename='creds.json')
+    sheet = gc.open_by_key('16N4bwf-u3qa4YaNsvx_s8P-zRuJH80KUe--WP5uIY98')
+    worksheet = sheet.sheet1
+
+    worksheet.insert_row(['Masa (kg)', 'Viteza Unghiulara (s^-1)', 'Timpul de oprire \u03C4 (s)', 'Forta Normala (N)', 'Forta de frecare Fᶠ (N)', 'Coeficientul de frecare'], 1)
+   # worksheet.insert_row(['Parametrii Discului-->', 'Masa discului', 'Raza discului'], 1)
+   # worksheet.update_cell(8, 2, mas_disc),  # ( row, column, new value )
+    #worksheet.update_cell(9, 2, 28),  # ( row, column, new value )
+    # Scriem datele in spreadsheet
+    for i in range(9):
+        vals = general[i] + [normalF_list[i], FrictionF_list[i], coefs[i]]
+        worksheet.append_row(vals)
+    # ultimul rand in spreadsheet
+    vals = ['m = 0', '\u03C90 = '.translate(SUB) + str(w0), '\u03C40 = '.translate(SUB) + str(t0), '\U0001D441 = 0', '\U0001D440 = {:.3f}'.format(MM), '\U0001D458 = 0']
+    worksheet.append_row(vals)
+    ########################################################################
 # ...................................  FRONT ..........................#
 ########################################################################
 
@@ -535,7 +683,7 @@ def intro():
 
 # ----------------------------------- MAIN ----------------------------#
 # Intro Page first
-intro()
+#intro()
 
 # Color Schemes
 top_block = "#b0bec5"
@@ -567,8 +715,11 @@ root.configure(menu=main_menu)
 
 first_item = Menu(main_menu, tearoff=0, background=ufo, foreground='#000000', activebackground='#eeeeee',
                   activeforeground='#000000')
+
 main_menu.add_cascade(label="Menu", menu=first_item)
-first_item.add_command(label="Import data", command=Import_data)
+first_item.add_command(label="Import data from Txt", command=Import_data)
+first_item.add_command(label="Import data from Spreadsheets", command=Import_data_Spreadsheets)
+first_item.add_command(label="Export to Spreadsheets", command=Export_to_Spreadsheet)
 
 # For Subscription equations
 SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")

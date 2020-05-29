@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "pbl-friction-force",
+  "private_key_id": "85ce4a5dc7d186d569556d988e4a6f4cf201ebb5",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDHLp9Yjv/SUJax\npUV5KYqSF0BVnakNgfTIZJ/8MRyM+/Nrz32f5cq9GrXmLgTVp9mhLUcp9gb02P5K\nX4qno57EW8zxXYI3QEal1bAduwAphFCHtO2TuYX8izIWsEH0AIXJ0Ukfy4HfB9Qr\naVVkQKbSddV7M463zNldJi7nPnFNqWO0pFpnCvMpqUmd9RP2Y2c8zm36muVW+gdy\nIZG/tCvywiiDBcclSdhr3Qk3XfqBuGcwRkM9ycDQhr4HAEMuZ9gBDXvf4BjYd4rT\n7BA6sTP+6ZUB1meQW3VxMX41Hl/v259r5zjduCbz3Bi7G4RAAWmq6258xMd3LasL\nZ+AN8aCLAgMBAAECggEACTlcgcJlkHzQ7bsko37L/wX6obxiZtC84EbgrdIsa08D\nr9t1CuGeaPGCuP0qliZmyrMJF6VgHxipdhJEnozSPm+t5wOYkyxz2RwzQr01Pbb1\n78LuOagez1o24JwbAczAZV8+zq0i/4wiRDxlivX/g8GXOFRj6Jkg+9JX27elkZ4Q\nggCgJrgH3QydZ+cJbsi/HVkSPRAKQmSSsZbFA//aMkvIGk+aLyPBbT6vJHeO/vJc\nnogNMQFNvvF9ctK4hrpQOcKytpY7rAI/ai2+oE920KbARlh/FFYHCgwQP5P2dGH1\n4Wh0rvNwYhi/Yu42iNZlKx6tZHRUghcPlEdGqLQa8QKBgQD+rl5OOyoJSfQm90vg\ntZiJ1hZ9URd0M4VgnKtlKU78ve7Rxgik9qahNvTgIDHi56SoPSS83L3LvT6C9Rtn\nmXXgIED2vrvUMsrybgkSDkrkE/rYpI36MPAhR0cABJjNwZ8S1WuSBnPzPTOjhfhO\nWN/DlszuO7AhHs1Ify1g13soqQKBgQDINq3Iv05D874JuW74j6TU9VZiBCpXi03C\nZwJlX7+BhMpdOa6QBtRthw2/Y11lwEHWUs+PkYF6EsGThp57If2cxlHWFKmaPcM/\n4TEd4lVY7u7+vTUTTUZvvVmOVJr+M+/wFr/3h2CZelZYYyREk0tRGG8Yfld1IlhQ\nuLFZrdY8EwKBgElMihvd71VJEZn9Zrs/yK0zDrn2kteA1IxfyvyMjQ005P0/D9Ha\no06W8Jdo7LKvlLZPErnAlmeDCfDK9p40jrZ40fmyH4ENNVfcz4OA1ZEbJwEfKzWs\nzA/n4clhiVD+vve+sP0QGmMRZEFWF4cFETHLvyN5zlFZ+h85aygKHIoxAoGAXL1f\nME7VHQrJa022xnIbIv3lno9ZYaXIRhVa+cQpPABbkGVIo7RWL8nQJ2gKejhdBr7j\nIBiBRh9sBT7lKBotlLIUdDqr+SNEztEr5DDT4dcDY4IXFLLFvrqRwikUhk1ehfKz\nxx+xMkaFunlp8k3cJFtSEqFrN3nKONHkbKrmQnsCgYEA0/dliUUaDrQQFIwG7mLm\n4z7WG09mtiFw0N0cSJDtsUm9qfAJdP582Il3LZPw9FucmL2KJepKq2Q43zH0AetH\neqi/nOm3GwIBYi3U0oG/wB7eEczisZQOL0FDcFuGw6ysXVaaamg+gSok9RnqpeXD\nlbu362ntzLfXegZnd21ZPc8=\n-----END PRIVATE KEY-----\n",
+  "client_email": "pbl-sem2@pbl-friction-force.iam.gserviceaccount.com",
+  "client_id": "108103739695882778800",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/pbl-sem2%40pbl-friction-force.iam.gserviceaccount.com"
+}
