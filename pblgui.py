@@ -894,11 +894,4 @@ add.bind("<Button-1>", add_val)
 restart.bind("<Button-1>", Restart_experiment)
 submit.bind("<Button-1>", Plot_the_graph)
 
-
-# usldkajfljasf
-# dsadfljasfld
-# asdf asdf
-this is commit test
-
 root.mainloop()
-# Check commit github
