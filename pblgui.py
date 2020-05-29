@@ -1,21 +1,17 @@
-import pdb
-from tkinter import *
-import tkinter.messagebox
-import matplotlib.pyplot as plt
-
-from tkinter import ttk
-from collections import defaultdict
-from tkinter.filedialog import *
-from tkinter.messagebox import *
-from tkinter import filedialog
-import gspread
-
+import pdb # standart debugger
+from tkinter import * # UI
+import matplotlib.pyplot as plt # Graph
+from tkinter.filedialog import * # to select the file to import data
+import gspread # to work with google spreadsheets
+from gspread_formatting import * # to modify google spreadsheets format
+import os # to clear terminal window when restart experiment os.system('cls')
 
 FrictionF_list = [] # pentru fortele de frecare
 coefs = [] # pentru coeficientii de frecare
 last = []
 
 def find_error(all, fric, tau0, J, r, m_disc):
+    global d_f, eps_f
 
     friction = sum(fric) / len(fric) # media fortelor de frecare
 
@@ -45,15 +41,17 @@ def find_error(all, fric, tau0, J, r, m_disc):
     # delata F
     d_f = friction * eps_f
 
-    print('masa_average = ', m)
-    print('w_average = ', w)
-    print('tau_average = ', tau)
+    print('Error Calculation:')
+    print('masa average = ', m)
+    print('viteza average = ', w)
+    print('tau average = ', tau)
     print('tau0 = ', tau0)
-    print('raza = ', r)
-    print('masa_d = ', m_disc)
-    print('Fric av = ', friction)
-    print('Eps F = ', eps_f)
-    print('Delt F = ', d_f)
+    print('raza discului = ', r)
+    print('masa discului = ', m_disc)
+    print('Fric Force average = ', friction)
+    print('Epsilon = ', eps_f)
+    print('Delta F = ', d_f)
+    print('\n')
 
     # actualizam datele in interfata
     delta_ff['text'] = '| ΔFᶠ = {:.3f}'.format(d_f)
@@ -146,7 +144,7 @@ def Momentul_fortei_disc(tau0, J, w0):
 def Restart_experiment(event):
     # global taus , velocity, mass,step , ra, raza, add,
     # pdb.set_trace()
-    global ra, raza, add, clearf, tab, step, restart, general, normalF_list, coefs, FrictionF_list, last, mass, masa_discului, plot_btn
+    global ra, raza, add, clearf, tab, step, restart, general, normalF_list, coefs, FrictionF_list, last, mass, masa_discului, plot_btn, plot_btn1
     coefs.clear()
     general.clear()
     normalF_list.clear()
@@ -154,6 +152,7 @@ def Restart_experiment(event):
     last.clear()
     plot_btn.grid_forget()
     submit.grid_forget()
+    plot_btn1.grid_forget()
 
     step = 5
     ra['text'] = 'Raza discului (m): '
@@ -194,6 +193,9 @@ def Restart_experiment(event):
 
     delta_ff['text'] = '| ΔFᶠ = ___'
     eps['text'] = '| \U0001D700 = ___%'
+    os.system('cls')
+    print('Experiment Restarted!')
+    print('Add new values to start.\n')
 
 
 def Friction_force(J, w0, R, tau_0, tau ):
@@ -243,6 +245,7 @@ def add_val(event):
         t = float(tau.get())
     # if not int
     except ValueError:
+        print('Invalid Input !!!')
         ValueErrorPopUp() # pop up window
 
     # pentru prima introducere in tabel
@@ -262,7 +265,6 @@ def add_val(event):
         except ValueError:
             ValueErrorPopUp()
 
-    print('---------------\n')
     general.append([m, w, t])
     # print(general)
 
@@ -298,7 +300,8 @@ def add_val(event):
     tab[step, 3]['text'] = '{:.2f}'.format(t)
     tab[step, 4]['text'] = '{:.3f}'.format(Normal_force(m))
     normalF_list.append(Normal_force(m))
-    print('normal force list', normalF_list)
+
+    print('Values were saved successfuly.')
 
 
 step = 5  # pentru a indexa in tabel datele, randul 0 in tabel e randul 5 in gridul general al paginii
@@ -308,13 +311,15 @@ last = [] # pentru ultimile valori introduse , ( tau0, w0 )
 
 
 def Import_data_Spreadsheets():
-    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM
+    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM, plot_btn1
 
     masa['state'], viteza['state'], tau['state'] = DISABLED, DISABLED, DISABLED
     viteza0['state'], tau0['state'] = DISABLED, DISABLED
 
     gc = gspread.service_account(filename='creds.json')
     sheet = gc.open_by_key('19FnHoinYGcMBgXQQi25YGXhC5ZSvAFwOs_WHKl_QdK8')
+    print('Successfuly opened the spreadsheet!')
+    print('Collecting data ...')
     worksheet = sheet.sheet1
 
     # lista de mase
@@ -344,7 +349,11 @@ def Import_data_Spreadsheets():
     general = []
     for i in range(9):
         general.append([masa_list[i], w[i], tau_list[i]])
-    print('general - ', general)
+
+    print('Collected Data:')
+    for i in range(len(general)):
+        print(*general[i])
+    print('\n')
 
     # viteza w0 si tau 0
     w0 = w[-1]
@@ -366,9 +375,9 @@ def Import_data_Spreadsheets():
 
     ra.config(width=14)
     raza.grid_forget()
-    print(FrictionF_list)
 
     # completez tabelul
+    print('Updating tabel...')
     s = 6
     for i in range(0, 9):
         tab[s, 1]['text'] = '{:.2f}'.format(general[i][0])  # masa
@@ -379,11 +388,8 @@ def Import_data_Spreadsheets():
         normalF_list.append(Normal_force(general[i][0]))
 
     J = Momentum_J(mas_disc, r)
-    print(J)
-    print('tau_0', t0)
     for i in range(9):
         tau_current = general[i][2]
-        print('tau curent', tau_current)
         Friction = Friction_force(J, w0, r, t0, tau_current)
         FrictionF_list.append(Friction)
 
@@ -414,7 +420,7 @@ def Import_data_Spreadsheets():
     eps_common.grid(row=2, column=4, padx=(5, 0), pady=1)
 
     # plot the data
-    def Show_the_plot(normalF_list, FrictionF_list):
+    def Show_the_plot(event):
         plt.plot(normalF_list, FrictionF_list, 'b')
         plt.plot(normalF_list, FrictionF_list, 'ro')
         plt.grid()
@@ -424,24 +430,29 @@ def Import_data_Spreadsheets():
         plt.show()
 
     # Forces Lists / coefs
-    print('friction - ',FrictionF_list )
-    print('normal f - ',normalF_list )
-    print('coefs - ', coefs)
+    print('Fr force list: ',*FrictionF_list )
+    print('************************************************')
+    print('Normal force list: ',*normalF_list )
+    print('************************************************')
+    print('Coefs list: ', *coefs)
+    print('************************************************')
 
     # afisam erorile
     find_error(general, FrictionF_list, t0, J, r, mas_disc)
     # afisam graficul
-    Show_the_plot(normalF_list, FrictionF_list)
+    plot_btn1.grid(row=4, column=4, padx=(5, 0), pady=(2, 5))
+    plot_btn1.bind("<Button-1>", Show_the_plot)  # afisam plotul la apasarea butonului
 
 
 def Import_data():
-    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list
+    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM, plot_btn1
 
     # disable all entrys:
     masa['state'], viteza['state'], tau['state'] = DISABLED, DISABLED, DISABLED
     viteza0['state'], tau0['state'] = DISABLED, DISABLED
 
     # deschid fisierul
+    print('Please select the file with the data!')
     of = askopenfilename()
     file = open(of, "r")
 
@@ -474,7 +485,6 @@ def Import_data():
             t = float(listed[2].rstrip())
             general.append([m, w, t])
 
-    print('general  -- ', general)
     # raza configs
     ra['text'] = 'Raza = {:.2f}(m)'.format(r)
     mass['text'] = 'Masa discului = {:.2f}(kg)'.format(mas_disc)
@@ -485,7 +495,6 @@ def Import_data():
 
     ra.config(width=14)
     raza.grid_forget()
-    print(FrictionF_list)
 
     # completez tabelul
     s = 6
@@ -497,12 +506,10 @@ def Import_data():
         s += 1
         normalF_list.append(Normal_force(general[i][0]))
 
+    # calculez forta de frecare
     J = Momentum_J(mas_disc, r)
-    print(J)
-    print('tau_0', t0)
     for i in range(9):
         tau_current = general[i][2]
-        print('tau curent', tau_current)
         Friction = Friction_force(J, w0, r,t0, tau_current)
         FrictionF_list.append(Friction)
 
@@ -535,7 +542,7 @@ def Import_data():
 
 
     # plot the data
-    def Show_the_plot(normalF_list, FrictionF_list):
+    def Show_the_plot(event):
         plt.plot(normalF_list, FrictionF_list, 'b')
         plt.plot(normalF_list, FrictionF_list, 'ro')
         plt.grid()
@@ -545,36 +552,89 @@ def Import_data():
         plt.show()
 
     # afisam erorile
+    print('Done!\n')
     find_error(general, FrictionF_list, t0, J, r, mas_disc)
     # afisam graficul
-    Show_the_plot(normalF_list, FrictionF_list)
+
+    plot_btn1.grid(row=4, column=4, padx=(5, 0), pady=(2, 5))
+    plot_btn1.bind("<Button-1>", Show_the_plot)  # afisam plotul la apasarea butonului
 
 
 def Export_to_Spreadsheet():
-    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM
+    global FrictionF_list, general, normalF_list, last, ra, raza, add, tab, coefs, r, t0, w0, mas_disc, mass, normalF_list, MM, d_f, eps_f
 
+    # conectarea la spreadsheet
     gc = gspread.service_account(filename='creds.json')
     sheet = gc.open_by_key('16N4bwf-u3qa4YaNsvx_s8P-zRuJH80KUe--WP5uIY98')
     worksheet = sheet.sheet1
+    print('Opening the spreadsheet...')
 
+
+    # sterg datele anterioare si formatarea lor
+    print('Formatint the spreadsheet...')
+    worksheet.delete_rows(1, 15)
+    fmt_defaul = cellFormat(backgroundColor=color(1, 1, 1))
+    format_cell_ranges(worksheet, [('A1:J15', fmt_defaul)])
+
+    # primul rand
+    print('Updating the spreadsheet with new values...')
+    print('Please wait...')
     worksheet.insert_row(['Masa (kg)', 'Viteza Unghiulara (s^-1)', 'Timpul de oprire \u03C4 (s)', 'Forta Normala (N)', 'Forta de frecare Fᶠ (N)', 'Coeficientul de frecare'], 1)
-   # worksheet.insert_row(['Parametrii Discului-->', 'Masa discului', 'Raza discului'], 1)
-   # worksheet.update_cell(8, 2, mas_disc),  # ( row, column, new value )
-    #worksheet.update_cell(9, 2, 28),  # ( row, column, new value )
+
+    # formatez primul rand
+    fmt_row1 = cellFormat(backgroundColor=color(0.643, 0.760, 0.956),
+    textFormat=textFormat(bold=True, foregroundColor=color(0, 0, 0)),
+    horizontalAlignment='LEFT')
+    format_cell_ranges(worksheet, [('A1:F1', fmt_row1)])
+    # formtez randurile urmatoare
+    fmt_rows = cellFormat(backgroundColor = color(1, 0.949, 0.8))
+    format_cell_ranges(worksheet, [('A2:E10', fmt_rows)])
+    # formtez coloana de coeficienti
+    fmt_coef = cellFormat(backgroundColor = color(0.713, 0.843, 0.658))
+    format_cell_ranges(worksheet, [('F2:F11', fmt_coef)])
+    # formatez ultimul rand
+    fmt_last_row = cellFormat(backgroundColor = color(0.945, 0.760, 0.196))
+    format_cell_ranges(worksheet, [('A11:F11', fmt_last_row)])
+
     # Scriem datele in spreadsheet
     for i in range(9):
         vals = general[i] + [normalF_list[i], FrictionF_list[i], coefs[i]]
         worksheet.append_row(vals)
-    # ultimul rand in spreadsheet
+    # ultimul rand in tabel (m = 0)
     vals = ['m = 0', '\u03C90 = '.translate(SUB) + str(w0), '\u03C40 = '.translate(SUB) + str(t0), '\U0001D441 = 0', '\U0001D440 = {:.3f}'.format(MM), '\U0001D458 = 0']
     worksheet.append_row(vals)
-    ########################################################################
+
+    # adaug parametrii discului
+    worksheet.update_cell(1, 8, 'Raza discului (m)')
+    worksheet.update_cell(1, 9, 'Masa discului (kg)')
+    worksheet.update_cell(2, 8, r)
+    worksheet.update_cell(2, 9, mas_disc)
+
+    # adaug erorile
+    worksheet.update('H4', 'ΔFᶠ')
+    worksheet.update('I4', '\U0001D700')
+    worksheet.update('H5', d_f)
+    worksheet.update('I5', eps_f)
+
+    # formatez param discului si erorile
+    format_cell_ranges(worksheet, [('H1:I1', fmt_row1), ('H2:I2', fmt_rows), ('H4:I4', fmt_row1), ('H5:I5', fmt_rows)])
+    print('All data was successful exported!')
+
+
+def close_app():
+    root.destroy()
+    exit()
+
+
+########################################################################
 # ...................................  FRONT ..........................#
 ########################################################################
 
 
 #  ------------------------------------INTRO --------------------------#
 def intro():
+    print('Intro Page.')
+    print('Please read carefully all the instructions\n')
     root1 = Tk()
     root1.title("Intro experiment")
     root1.geometry('800x720+400-80')
@@ -683,7 +743,7 @@ def intro():
 
 # ----------------------------------- MAIN ----------------------------#
 # Intro Page first
-#intro()
+intro()
 
 # Color Schemes
 top_block = "#b0bec5"
@@ -700,7 +760,8 @@ clear_fields_color_btn = '#F2DEA7'
 submit_color_btn = '#7CE596'
 restart_corol_btn = '#F2BBA7'
 
-
+print('Starting the experiment!')
+print('Add values to required fields to get started.\n')
 # Main Root config
 root = Tk()
 root.title("PBL 2")
@@ -717,9 +778,10 @@ first_item = Menu(main_menu, tearoff=0, background=ufo, foreground='#000000', ac
                   activeforeground='#000000')
 
 main_menu.add_cascade(label="Menu", menu=first_item)
-first_item.add_command(label="Import data from Txt", command=Import_data)
-first_item.add_command(label="Import data from Spreadsheets", command=Import_data_Spreadsheets)
-first_item.add_command(label="Export to Spreadsheets", command=Export_to_Spreadsheet)
+first_item.add_command(label="Import (.txt)", command=Import_data)
+first_item.add_command(label="Import (Google Sheets)", command=Import_data_Spreadsheets)
+first_item.add_command(label="Export (Google Sheets)", command=Export_to_Spreadsheet)
+first_item.add_command(label="Exit App", command=close_app)
 
 # For Subscription equations
 SUB = str.maketrans("0123456789", "₀₁₂₃₄₅₆₇₈₉")
@@ -814,6 +876,11 @@ nota_label.grid(row=5,rowspan=4, columnspan=10, sticky=NSEW)
 
 nota_w0.grid(columnspan=10 ,sticky=NSEW)
 nota_tau.grid(column=8 ,sticky=NSEW)
+
+# definesc butoanele de plot pentru diferite importuri
+plot_btn1 = Button(frame2, text="Plot the graph 📈", font="Times 11", width=20, bg=submit_color_btn, fg=txt_color,
+                       activebackground=on_click)
+
 
 # ............................................ TABEL FOOTER ............................
 ftab = Frame(root, bg=ufo, highlightbackground=highlight_backg)
