@@ -896,63 +896,6 @@ submit.bind("<Button-1>", Plot_the_graph)
 
 
 # usldkajfljasf
-asdf
-asdf
 
-asdf
-as
-df
-
-asdf
-sadf
-s
-df
-as
-df
-
-sadf
-asd
-f
-asd
-f
-asd
-f
-asd
-f
-as
-dfas
-df
-sa
-df
-sa
-df
-s
-df
-as
-df
-sad
-f
-sa
-df
-asd
-f
-sadf
-
-asd
-f
-as
-df
-asd
-f
-asd
-f
-sdf
-s
-adf
-as
-df
-sa
-df
-safd
 root.mainloop()
 # Check commit github
