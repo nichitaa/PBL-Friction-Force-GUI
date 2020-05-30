@@ -454,36 +454,37 @@ def Import_data():
     # deschid fisierul
     print('Please select the file with the data!')
     of = askopenfilename()
-    file = open(of, "r")
 
-    # citim valorile
-    for i in range(0, 10):
-        line = file.readline()
-        listed = []
-        for u in line.split(' '):
-            listed.append(u)
-        if i == 0:
-            m = float(listed[0])
-            w = float(listed[1])
-            t = float(listed[2])
-            r = float(listed[3])
-            mas_disc = float(listed[4])
-            general.append([m, w, t])
+    with open(of, 'r') as file:
+        #file = open(of, "r")
+        # citim valorile
+        for i in range(0, 10):
+            line = file.readline()
+            listed = []
+            for u in line.split(' '):
+                listed.append(u)
+            if i == 0:
+                m = float(listed[0])
+                w = float(listed[1])
+                t = float(listed[2])
+                r = float(listed[3])
+                mas_disc = float(listed[4])
+                general.append([m, w, t])
 
-        elif i == 9:
-            w0 = float(listed[0])
-            t0 = float(listed[1].rstrip())
-            tab[15, 2]['text'] = '\u03C90 = '.translate(SUB) + str(w0)
-            tab[15, 3]['text'] = '\u03C40 = '.translate(SUB) + str(t0)
-            tab[15, 4]['text'] = 0
-            MM = Momentul_fortei_disc(t0, Momentum_J(mas_disc, r), w0)
-            tab[15, 5]['text'] = '\U0001D440 = {:.3f}'.format(MM) # M
+            elif i == 9:
+                w0 = float(listed[0])
+                t0 = float(listed[1].rstrip())
+                tab[15, 2]['text'] = '\u03C90 = '.translate(SUB) + str(w0)
+                tab[15, 3]['text'] = '\u03C40 = '.translate(SUB) + str(t0)
+                tab[15, 4]['text'] = 0
+                MM = Momentul_fortei_disc(t0, Momentum_J(mas_disc, r), w0)
+                tab[15, 5]['text'] = '\U0001D440 = {:.3f}'.format(MM) # M
 
-        else:
-            m = float(listed[0])
-            w = float(listed[1])
-            t = float(listed[2].rstrip())
-            general.append([m, w, t])
+            else:
+                m = float(listed[0])
+                w = float(listed[1])
+                t = float(listed[2].rstrip())
+                general.append([m, w, t])
 
     # raza configs
     ra['text'] = 'Raza = {:.2f}(m)'.format(r)
